@@ -1,13 +1,13 @@
 // JS for rerunner extension. Adds a "select failures" button to the trybot
 // popup window, so you don't have to select them by hand.
 
-rerunner_HookTrybotLink();
+rerunner_HookTrybotLink(0);
 
 // Hook into link to open trybot-popup
-function rerunner_HookTrybotLink() {
+function rerunner_HookTrybotLink(attempts) {
   // find the most recent patchset
-  var patch_containers = document.getElementsByClassName("rb-patchContainer");
   var most_recent_patch = -1;
+  var patch_containers = document.getElementsByClassName("rb-patchContainer");
   for (var i = 0; i < patch_containers.length; ++i) {
     var patch_number = parseInt(patch_containers[i].id.replace(/\D/g,''));
     if (patch_number) {
@@ -15,7 +15,14 @@ function rerunner_HookTrybotLink() {
     }
   }
   if (most_recent_patch === -1) {
-    console.log("Rerunner unable to find most recent patch.");
+    // Stupid timeout-based retry.
+    if (attempts < 3) {
+      console.log("Rerunner unable to find most recent patch,",
+                  "trying again soon...");
+      setTimeout(function() { rerunner_HookTrybotLink(attempts+1); }, 300);
+    } else {
+      console.log("Rerunner unable to find most recent patch, giving up.");
+    }
     return;
   }
 
