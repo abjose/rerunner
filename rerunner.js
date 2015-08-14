@@ -46,7 +46,7 @@ function rerunner_HookTrybotLink(attempts) {
 }
 
 function rerunner_SelectFailedBots(patch_number) {
-  // Get all failures (only in desired patchset)
+  // Get all failures (only in desired patchset).
   var patch = document.getElementById("ps-"+patch_number);
   if (!patch) {
     console.log("Couldn't find most recent patch.");
@@ -54,11 +54,16 @@ function rerunner_SelectFailedBots(patch_number) {
   }
   var failures =
     patch.getElementsByClassName("build-result build-status-color-failure");
+  var flakes = 
+    patch.getElementsByClassName("build-result build-status-color-exception");
 
-  // Extract trybot names from failures
+  // Extract trybot names from failures and flakes.
   var failure_names = {};
   for (var i = 0; i < failures.length; ++i) {
     failure_names[failures[i].innerText.trim()] = true;
+  }
+  for (var i = 0; i < flakes.length; ++i) {
+    failure_names[flakes[i].innerText.trim()] = true;
   }
   failure_names = Object.keys(failure_names);
 
